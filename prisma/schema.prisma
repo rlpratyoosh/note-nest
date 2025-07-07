@@ -1,0 +1,56 @@
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Note {
+  id          String    @id @default(cuid())
+  userId      String?
+  title       String
+  content     String
+  description String?
+  tags        String[]
+  isDeleted   Boolean @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+} 
+
+model Journal {
+  id          String   @id @default(cuid())
+  userId      String?
+  title       String?
+  content     String
+  isDeleted   Boolean @default(false)
+  createdAt   DateTime @default(now())
+}
+
+model QuickNote {
+  id          String @id @default(cuid())
+  content     String
+  userId      String?
+  isDeleted   Boolean @default(false)
+  createdAt   DateTime @default(now())
+}
+
+model Goal {
+  id          String @id @default(cuid())
+  title       String
+  description String?
+  type        GoalType
+  isCompleted Boolean @default(false)
+  userId      String?
+  isDeleted   Boolean @default(false)
+  createdAt   DateTime @default(now())
+}
+
+enum GoalType {
+  DAILY
+  MONTHLY
+  YEARLY
+}
