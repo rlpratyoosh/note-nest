@@ -37,20 +37,3 @@ model QuickNote {
   isDeleted   Boolean @default(false)
   createdAt   DateTime @default(now())
 }
-
-model Goal {
-  id          String @id @default(cuid())
-  title       String
-  description String?
-  type        GoalType
-  isCompleted Boolean @default(false)
-  userId      String?
-  isDeleted   Boolean @default(false)
-  createdAt   DateTime @default(now())
-}
-
-enum GoalType {
-  DAILY
-  MONTHLY
-  YEARLY
-}

@@ -28,17 +28,26 @@ if (process.env.NODE_ENV !== "production") global.prisma = prisma;
 
 // PopulateNotes();
 
-export async function GetNotes() {
+export async function GetNotes(userId?: string) {
+    const whereClause: any = {
+        isDeleted: false,
+    };
+    
+    if (userId) {
+        whereClause.userId = userId;
+    }
+    
     return await prisma.note.findMany({
-        where: {
-            isDeleted: false,
-        },
+        where: whereClause,
     });
 }
 
-export async function GetNotesById(id: string) {
+export async function GetNotesById(id: string, userId: string) {
     return await prisma.note.findUnique({
-        where: { id },
+        where: { 
+            id,
+            userId,
+        },
     });
 }
 
@@ -63,10 +72,13 @@ export async function UpdateNote(id: string, data: {
     content?: string;
     description?: string | null;
     tags?: string[];
-}) {
+}, userId: string) {
     const { tags, ...rest } = data;
     return await prisma.note.update({
-        where: { id },
+        where: { 
+            id,
+            userId,
+        },
         data: {
             ...rest,
             ...(tags !== undefined ? { tags } : {}),
@@ -74,9 +86,12 @@ export async function UpdateNote(id: string, data: {
     });
 }
 
-export async function DeleteNote(id: string) {
+export async function DeleteNote(id: string, userId: string) {
     return await prisma.note.update({
-        where: { id },
+        where: { 
+            id,
+            userId,
+        },
         data: { isDeleted: true },
     });
 }
@@ -97,22 +112,32 @@ export async function DeleteNote(id: string) {
 
 // PopulateQuickNotes();
 
-export async function GetQuickNotes() {
+export async function GetQuickNotes(userId?: string) {
+    const whereClause: any = {
+        isDeleted: false,
+    };
+    
+    if (userId) {
+        whereClause.userId = userId;
+    }
+    
     return await prisma.quickNote.findMany({
-        where: {
-            isDeleted: false,
-        },
+        where: whereClause,
     });
 }
 
-export async function QuickNotesById(id: string) {
+export async function GetQuickNotesById(id: string, userId: string) {
     return await prisma.quickNote.findUnique({
-        where: { id },
+        where: { 
+            id,
+            userId,
+        },
     });
 }
 
 export async function CreateQuickNote(data: {
     content: string;
+    userId?: string | null;
 }) {
     return await prisma.quickNote.create({
         data,
@@ -121,16 +146,22 @@ export async function CreateQuickNote(data: {
 
 export async function UpdateQuickNote(id: string, data: {
     content?: string;
-}) {
+}, userId: string) {
     return await prisma.quickNote.update({
-        where: { id },
+        where: { 
+            id,
+            userId,
+        },
         data,
     });
 }
 
-export async function DeleteQuickNote(id: string) {
+export async function DeleteQuickNote(id: string, userId: string) {
     return await prisma.quickNote.update({
-        where: { id },
+        where: { 
+            id,
+            userId,
+        },
         data: { isDeleted: true },
     });
 }
@@ -151,17 +182,26 @@ export async function DeleteQuickNote(id: string) {
 
 // PopulateJournal();
 
-export async function GetJournals() {
+export async function GetJournals(userId?: string) {
+    const whereClause: any = {
+        isDeleted: false,
+    };
+    
+    if (userId) {
+        whereClause.userId = userId;
+    }
+    
     return await prisma.journal.findMany({
-        where: {
-            isDeleted: false,
-        },
+        where: whereClause,
     });
 }
 
-export async function GetJournalsById(id: string) {
+export async function GetJournalsById(id: string, userId: string) {
     return await prisma.journal.findUnique({
-        where: { id },
+        where: { 
+            id,
+            userId,
+        },
     });
 }
 
@@ -178,70 +218,65 @@ export async function CreateJournal(data: {
 export async function UpdateJournal(id: string, data: {
     title?: string | null;
     content?: string;
-}) {
+}, userId: string) {
     return await prisma.journal.update({
-        where: { id },
-        data,
-    });
-}
-
-export async function DeleteJournal(id: string) {
-    return await prisma.journal.update({
-        where: { id },
-        data: { isDeleted: true },
-    });
-}
-
-// Goal Section
-
-// export async function PopulateGoals() {
-//     const goals = await prisma.goal.findMany();
-//     if (goals.length === 0) {
-//         await prisma.goal.createMany({
-//             data: [
-//                 { title: "Learn Prisma", description: "Understand how to use Prisma with Next.js.", type: 'DAILY' },
-//                 { title: "Build a Note App", description: "Create a note-taking application using Next.js and Prisma.", type: 'MONTHLY' },
-//                 { title: "Improve Coding Skills", description: "Practice coding daily to enhance skills.", type: 'YEARLY' },
-//             ],
-//         });
-//     }
-// }
-
-// PopulateGoals();
-
-export async function GetGoals() {
-    return await prisma.goal.findMany({
-        where: {
-            isDeleted: false,
+        where: { 
+            id,
+            userId,
         },
-    });
-}
-
-export async function CreateGoal(data: {
-    title: string;
-    description?: string | null;
-    type: 'DAILY' | 'MONTHLY' | 'YEARLY';
-}) {
-    return await prisma.goal.create({
         data,
     });
 }
 
-export async function UpdateGoal(id: string, data: {
-    title?: string;
-    description?: string | null;
-    type?: 'DAILY' | 'MONTHLY' | 'YEARLY';
-}) {
-    return await prisma.goal.update({
-        where: { id },
-        data,
-    });
-}
-
-export async function DeleteGoal(id: string) {
-    return await prisma.goal.update({
-        where: { id },
+export async function DeleteJournal(id: string, userId: string) {
+    return await prisma.journal.update({
+        where: { 
+            id,
+            userId,
+        },
         data: { isDeleted: true },
     });
 }
 
+// Trash
+
+export async function GetAllTrashedItems(userId: string) {
+    const [trashedNotes, trashedQuickNotes, trashedJournals] = await Promise.all([
+        prisma.note.findMany({ where: { isDeleted: true, userId } }),
+        prisma.quickNote.findMany({ where: { isDeleted: true, userId } }),
+        prisma.journal.findMany({ where: { isDeleted: true, userId } }),
+    ]);
+    return {
+        notes: trashedNotes,
+        quickNotes: trashedQuickNotes,
+        journals: trashedJournals,
+    };
+}
+
+export async function PermanentlyDeleteAllTrashedItems(userId: string) {
+    await Promise.all([
+        prisma.note.deleteMany({ where: { isDeleted: true, userId } }),
+        prisma.quickNote.deleteMany({ where: { isDeleted: true, userId } }),
+        prisma.journal.deleteMany({ where: { isDeleted: true, userId } }),
+    ]);
+}
+
+export async function RestoreTrashedItem(type: "note" | "quickNote" | "journal", id: string, userId: string) {
+    if (type === "note") {
+        return await prisma.note.update({
+            where: { id, userId },
+            data: { isDeleted: false },
+        });
+    } else if (type === "quickNote") {
+        return await prisma.quickNote.update({
+            where: { id, userId },
+            data: { isDeleted: false },
+        });
+    } else if (type === "journal") {
+        return await prisma.journal.update({
+            where: { id, userId },
+            data: { isDeleted: false },
+        });
+    }
+    throw new Error("Invalid type");
+}

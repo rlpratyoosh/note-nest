@@ -8,16 +8,19 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  SidebarFooter,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import { LuLayoutDashboard } from "react-icons/lu";
 import { FaNotesMedical } from "react-icons/fa6";
 import { CgNotes } from "react-icons/cg";
 import { FaBookBookmark } from "react-icons/fa6";
-import { GiBullseye } from "react-icons/gi";
 import { usePathname } from "next/navigation";
+import { IoTrash } from "react-icons/io5";
+import { UserButton, useUser } from "@clerk/nextjs";
 
 export function AppSidebar() {
+  const { user, isLoaded } = useUser();
 
   const pages = [
     {
@@ -41,9 +44,9 @@ export function AppSidebar() {
       icon: <FaBookBookmark />,
     },
     {
-      name: "Goals",
-      href: "/goals",
-      icon: <GiBullseye />,
+      name: "Trash",
+      href: "/trash",
+      icon: <IoTrash />,
     },
   ];
 
@@ -60,7 +63,9 @@ export function AppSidebar() {
                 <SidebarMenuItem
                   key={page.name}
                   className={
-                    currentPath === page.href ? "bg-muted text-primary rounded-sm" : ""
+                    currentPath === page.href
+                      ? "bg-muted text-primary rounded-sm"
+                      : ""
                   }
                 >
                   <SidebarMenuButton asChild>
@@ -75,6 +80,16 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter className="flex items-center justify-center ml-12">
+        {isLoaded ? (
+          <div className="flex justify-start items-center p-4 w-50 gap-2 rounded-xl hover:bg-[var(--bg-hover)] cursor-pointer">
+            <UserButton />
+            <span className="mt-1">{user?.username || user?.firstName}</span>
+          </div>
+        ) : (
+          <div className="h-18"></div>
+        )}
+      </SidebarFooter>
     </Sidebar>
   );
 }

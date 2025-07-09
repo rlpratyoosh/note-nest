@@ -31,7 +31,7 @@ export default function AppLayout({
               <IoSearchSharp />
             </Button>
           </div>
-          <div className="flex items-center justify-center gap-2 mr-2">
+          <div className="flex items-center justify-center gap-2 mr-2 sm:mr-5 md:mr-10- text-xl font-bold">
             <GiNestBirds />
             NoteNest
           </div>

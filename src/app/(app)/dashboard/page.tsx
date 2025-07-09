@@ -16,20 +16,21 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 
-import { Checkbox } from "@/components/ui/checkbox";
-
-import { GetNotes, GetQuickNotes, GetGoals, GetJournals } from "@/prisma-db";
+import { GetNotes, GetQuickNotes, GetJournals } from "@/prisma-db";
+import { auth } from "@clerk/nextjs/server";
 
 import { FaNotesMedical } from "react-icons/fa6";
 import { CgNotes } from "react-icons/cg";
 import { FaBookBookmark } from "react-icons/fa6";
-import { GiBullseye } from "react-icons/gi";
 import NotesAddButton from "@/components/add-buttons/notes-add-button";
 import NotesPreviewButton from "@/components/preview-buttons/notes-preview-button";
 import DeleteNoteButton from "../../../components/delete-buttons/delete-note-button";
 import JournalAddButton from "@/components/add-buttons/journal-add-buttonn";
 import JournalPreviewButton from "@/components/preview-buttons/journal-preview-button";
 import DeleteJournalButton from "@/components/delete-buttons/delete-journal-button";
+import QuickNotesAddButton from "@/components/add-buttons/quick-notes-add-button";
+import QuickNotesPreviewButton from "@/components/preview-buttons/quick-notes-preview-button";
+import DeleteQuickNoteButton from "@/components/delete-buttons/delete-quick-note-button";
 
 type Note = {
   id: string;
@@ -60,32 +61,21 @@ type Journal = {
   createdAt: Date;
 };
 
-type Goal = {
-  id: string;
-  userId: string | null;
-  title: string;
-  description: string | null;
-  isDeleted: boolean;
-  createdAt: Date;
-  isCompleted: boolean;
-  type: "DAILY" | "MONTHLY" | "YEARLY";
-};
-
 export default async function DashboardPage() {
-  const [notes, quickNotes, journals, goals]: [
+  const { userId } = await auth();
+  if (!userId) {
+    return <div className="flex items-center justify-center h-full text-red-500">Unauthorized</div>;
+  }
+
+  const [notes, quickNotes, journals]: [
     Note[],
     QuickNote[],
     Journal[],
-    Goal[]
   ] = await Promise.all([
-    GetNotes(),
-    GetQuickNotes(),
-    GetJournals(),
-    GetGoals(),
+    GetNotes(userId),
+    GetQuickNotes(userId),
+    GetJournals(userId),
   ]);
-  const dailyGoals: Goal[] = goals.filter((goal) => goal.type === "DAILY");
-  const monthlyGoals: Goal[] = goals.filter((goal) => goal.type === "MONTHLY");
-  const yearlyGoals: Goal[] = goals.filter((goal) => goal.type === "YEARLY");
 
   return (
     <div className="flex flex-col items-center justify-center gap-4 p-4">
@@ -101,12 +91,14 @@ export default async function DashboardPage() {
             <CarouselItem className="sm:basis-1/2 lg:basis-1/3" key={note.id}>
               <Card className="group">
                 <CardHeader>
-                  <CardTitle className="text-xl overflow-hidden max-h-8">
+                  <div className="flex flex-col gap-2">
+                    <CardTitle className="text-xl overflow-hidden max-h-8">
                     {note.title}
                   </CardTitle>
                   <CardDescription className="text-xs max-h-5 overflow-hidden">
                     {note.description || "No description"}
                   </CardDescription>
+                  </div>
                   <CardAction className="flex gap-2 absolute bottom-4 right-4 opacity-100 sm:top-0 sm:right-0 sm:relative sm: sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200">
                     <NotesPreviewButton id={note.id} />
                     <DeleteNoteButton id={note.id} />
@@ -125,7 +117,7 @@ export default async function DashboardPage() {
               </Card>
             </CarouselItem>
           ))}
-          <CarouselItem className="sm:basis-1/2 lg:basis-1/3">
+          <CarouselItem className="sm:basis-1/2 lg:basis-1/3 min-h-50">
             <div className="flex items-center justify-center h-full cursor-pointer rounded-xl hover:bg-[var(--crad)]">
               <NotesAddButton />
             </div>
@@ -172,7 +164,7 @@ export default async function DashboardPage() {
               </Card>
             </CarouselItem>
           ))}
-          <CarouselItem className="sm:basis-1/2 lg:basis-1/3">
+          <CarouselItem className="sm:basis-1/2 lg:basis-1/3 min-h-50">
             <div className="flex items-center justify-center h-full cursor-pointer rounded-xl hover:bg-[var(--crad)]">
               <JournalAddButton />
             </div>
@@ -196,7 +188,14 @@ export default async function DashboardPage() {
               className="sm:basis-1/2 lg:basis-1/3"
               key={quickNote.id}
             >
-              <Card>
+              <Card className="group">
+                <CardHeader className="max-h-2">
+                  <CardTitle>Quick Note</CardTitle>
+                  <CardAction className="flex gap-2 absolute bottom-4 right-4 opacity-100 sm:top-0 sm:right-0 sm:relative sm: sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200">
+                    <QuickNotesPreviewButton id={quickNote.id} />
+                    <DeleteQuickNoteButton id={quickNote.id} />
+                  </CardAction>
+                </CardHeader>
                 <CardContent className="text-sm h-10 overflow-hidden">
                   <p>{quickNote.content}</p>
                 </CardContent>
@@ -210,69 +209,17 @@ export default async function DashboardPage() {
               </Card>
             </CarouselItem>
           ))}
-        </CarouselContent>
-        <CarouselPrevious />
-        <CarouselNext />
-      </Carousel>
-      <br />
-      <br />
-      <h1 className="text-2xl w-full flex items-center justify-start gap-2">
-        {" "}
-        <GiBullseye /> Goals{" "}
-      </h1>{" "}
-      <br />
-      <br />
-      <Carousel className="w-3/4 sm:w-6/7 md:w-9/10">
-        <CarouselContent>
-          <CarouselItem className="sm:basis-1/2 lg:basis-1/3">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-sm">Daily Goals</CardTitle>
-              </CardHeader>
-              <CardContent className="text-sm flex flex-col gap-2">
-                {dailyGoals.map((goal) => (
-                  <div key={goal.id} className="flex items-center gap-2">
-                    <Checkbox checked={goal.isCompleted} />
-                    <span>{goal.title}</span>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          </CarouselItem>
-          <CarouselItem className="sm:basis-1/2 lg:basis-1/3">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-sm">Monthly Goals</CardTitle>
-              </CardHeader>
-              <CardContent className="text-sm flex flex-col gap-2">
-                {monthlyGoals.map((goal) => (
-                  <div key={goal.id} className="flex items-center gap-2">
-                    <Checkbox checked={goal.isCompleted} />
-                    <span>{goal.title}</span>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          </CarouselItem>
-          <CarouselItem className="sm:basis-1/2 lg:basis-1/3">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-sm">Yearly Goals</CardTitle>
-              </CardHeader>
-              <CardContent className="text-sm flex flex-col gap-2">
-                {yearlyGoals.map((goal) => (
-                  <div key={goal.id} className="flex items-center gap-2">
-                    <Checkbox checked={goal.isCompleted} />
-                    <span>{goal.title}</span>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
+          <CarouselItem className="sm:basis-1/2 lg:basis-1/3 min-h-40">
+            <div className="flex items-center justify-center h-full cursor-pointer rounded-xl hover:bg-[var(--crad)]">
+              <QuickNotesAddButton/>
+            </div>
           </CarouselItem>
         </CarouselContent>
         <CarouselPrevious />
         <CarouselNext />
       </Carousel>
+      <br />
+      <br />
     </div>
   );
 }
