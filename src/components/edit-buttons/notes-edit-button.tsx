@@ -17,17 +17,33 @@ import {
   Components,
   ReactMarkdownProps,
 } from "react-markdown/lib/ast-to-react";
-import { createNote } from "@/actions";
+import { updateNote } from "@/actions";
 import { DialogDescription } from "@radix-ui/react-dialog";
-import { IoMdSave } from "react-icons/io";
+import { MdModeEditOutline } from "react-icons/md";
 import { CiSaveUp2 } from "react-icons/ci";
+import { IoMdSave } from "react-icons/io";
 
-export default function NotesAddButton() {
+type Note = {
+  id: string;
+  userId: string | null;
+  title: string;
+  content: string;
+  description: string | null;
+  tags: string[];
+  isDeleted: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export default function NotesEditButton(props: { note: Note, setPrevOpen?: (open: boolean) => void }) {
+  const { note, setPrevOpen } = props;
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [content, setContent] = useState<string>("");
-  const [title, setTitle] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
+  const [content, setContent] = useState<string>(note.content || "");
+  const [title, setTitle] = useState<string>(note.title || "");
+  const [description, setDescription] = useState<string>(
+    note.description || ""
+  );
   const [error, setError] = useState<string | null>(null);
 
   const components: Components = {
@@ -110,15 +126,18 @@ export default function NotesAddButton() {
     ),
   };
 
+
   const handleSave = async () => {
     try {
       setLoading(true);
-      setError(null);
-      await createNote(title, content, description);
+      await updateNote(note.id, title, content, description);
       setTitle("");
       setContent("");
       setDescription("");
       setOpen(false);
+      if(setPrevOpen) {
+        setPrevOpen(false);
+      }
     } catch (error) {
       setError(error as string);
     } finally {
@@ -128,8 +147,10 @@ export default function NotesAddButton() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger className="text-4xl opacity-50 flex items-center justify-center h-full w-full border cursor-pointer rounded-xl hover:bg-[var(--card)]">
-        +
+      <DialogTrigger asChild>
+        <Button className="mr-5">
+          <MdModeEditOutline />
+        </Button>
       </DialogTrigger>
       <DialogContent
         className="w-[90vw] max-w-[90vw] h-9/10"

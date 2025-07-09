@@ -77,6 +77,14 @@ function Carousel({
 
   const handleKeyDown = React.useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>) => {
+      const target = event.target as HTMLElement;
+      const isInDialog = target.closest('[role="dialog"], [data-slot="dialog-content"]');
+      const isInputElement = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA';
+      
+      if (isInDialog || isInputElement) {
+        return;
+      }
+      
       if (event.key === "ArrowLeft") {
         event.preventDefault()
         scrollPrev()

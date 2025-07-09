@@ -36,6 +36,12 @@ export async function GetNotes() {
     });
 }
 
+export async function GetNotesById(id: string) {
+    return await prisma.note.findUnique({
+        where: { id },
+    });
+}
+
 export async function CreateNote(data: {
     userId?: string | null;
     title: string;
@@ -99,6 +105,12 @@ export async function GetQuickNotes() {
     });
 }
 
+export async function QuickNotesById(id: string) {
+    return await prisma.quickNote.findUnique({
+        where: { id },
+    });
+}
+
 export async function CreateQuickNote(data: {
     content: string;
 }) {
@@ -144,6 +156,12 @@ export async function GetJournals() {
         where: {
             isDeleted: false,
         },
+    });
+}
+
+export async function GetJournalsById(id: string) {
+    return await prisma.journal.findUnique({
+        where: { id },
     });
 }
 

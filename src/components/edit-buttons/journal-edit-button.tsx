@@ -17,17 +17,27 @@ import {
   Components,
   ReactMarkdownProps,
 } from "react-markdown/lib/ast-to-react";
-import { createNote } from "@/actions";
+import { updateJournal } from "@/actions";
 import { DialogDescription } from "@radix-ui/react-dialog";
-import { IoMdSave } from "react-icons/io";
+import { MdModeEditOutline } from "react-icons/md";
 import { CiSaveUp2 } from "react-icons/ci";
+import { IoMdSave } from "react-icons/io";
 
-export default function NotesAddButton() {
+type journal = {
+  id: string;
+  userId: string | null;
+  title: string | null;
+  content: string;
+  isDeleted: boolean;
+  createdAt: Date;
+};
+
+export default function JournalEditButton(props: { journal: journal, setPrevOpen?: (open: boolean) => void }) {
+  const { journal, setPrevOpen } = props;
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [content, setContent] = useState<string>("");
-  const [title, setTitle] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
+  const [content, setContent] = useState<string>(journal.content || "");
+  const [title, setTitle] = useState<string>(journal.title || "");
   const [error, setError] = useState<string | null>(null);
 
   const components: Components = {
@@ -110,15 +120,17 @@ export default function NotesAddButton() {
     ),
   };
 
+
   const handleSave = async () => {
     try {
       setLoading(true);
-      setError(null);
-      await createNote(title, content, description);
+      await updateJournal(journal.id, title, content);
       setTitle("");
       setContent("");
-      setDescription("");
       setOpen(false);
+      if(setPrevOpen) {
+        setPrevOpen(false);
+      }
     } catch (error) {
       setError(error as string);
     } finally {
@@ -128,8 +140,10 @@ export default function NotesAddButton() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger className="text-4xl opacity-50 flex items-center justify-center h-full w-full border cursor-pointer rounded-xl hover:bg-[var(--card)]">
-        +
+      <DialogTrigger asChild>
+        <Button className="mr-5">
+          <MdModeEditOutline />
+        </Button>
       </DialogTrigger>
       <DialogContent
         className="w-[90vw] max-w-[90vw] h-9/10"
@@ -150,14 +164,6 @@ export default function NotesAddButton() {
               {loading ? <CiSaveUp2 /> : <IoMdSave />}
             </Button>
           </DialogTitle>
-          <DialogDescription>
-            <Input
-              placeholder="Write your description here..."
-              className="max-w-100 text-xs"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />{" "}
-          </DialogDescription>
           <div className="flex items-center ml-2">
             {error && <div className="text-red-500 text-sm mb-2">{error}</div>}{" "}
           </div>

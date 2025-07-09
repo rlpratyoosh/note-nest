@@ -1,3 +1,4 @@
+"use client";
 import {
   Sidebar,
   SidebarContent,
@@ -14,9 +15,10 @@ import { FaNotesMedical } from "react-icons/fa6";
 import { CgNotes } from "react-icons/cg";
 import { FaBookBookmark } from "react-icons/fa6";
 import { GiBullseye } from "react-icons/gi";
+import { usePathname } from "next/navigation";
 
 export function AppSidebar() {
-  // Defining the navigation items
+
   const pages = [
     {
       name: "Dashboard",
@@ -45,6 +47,8 @@ export function AppSidebar() {
     },
   ];
 
+  const currentPath = usePathname();
+
   return (
     <Sidebar>
       <SidebarContent>
@@ -53,7 +57,12 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {pages.map((page) => (
-                <SidebarMenuItem key={page.name}>
+                <SidebarMenuItem
+                  key={page.name}
+                  className={
+                    currentPath === page.href ? "bg-muted text-primary rounded-sm" : ""
+                  }
+                >
                   <SidebarMenuButton asChild>
                     <Link href={page.href}>
                       {page.icon}

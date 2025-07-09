@@ -4,8 +4,7 @@ import { GiNestBirds } from "react-icons/gi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { IoSearchSharp } from "react-icons/io5";
-import { Toggle } from "@/components/ui/toggle";
-import { MdLightMode } from "react-icons/md";
+import ToggleLight from "./toggle-light";
 
 export default function AppLayout({
   children,
@@ -17,19 +16,18 @@ export default function AppLayout({
         <header className="p-2 flex items-center justify-between">
           <div className="flex items-center justify-center gap-1">
             <SidebarTrigger />
-            <Toggle className="cursor-pointer">
-              <span className="text-xs">
-                <MdLightMode />
-              </span>
-            </Toggle>
+            <ToggleLight />
           </div>
           <div className="flex items-center justify-center gap-2 ml-4">
             <Input
               type="text"
               placeholder="Search Notes..."
-              className="w-40 sm:w-64 text-xs rounded-2xl"
+              className="w-30 sm:w-64 text-xs rounded-2xl"
             />
-            <Button variant="outline" className="rounded-2xl cursor-pointer">
+            <Button
+              variant="outline"
+              className="rounded-2xl cursor-pointer hidden sm:flex"
+            >
               <IoSearchSharp />
             </Button>
           </div>

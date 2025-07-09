@@ -5,6 +5,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
+  CardAction,
 } from "@/components/ui/card";
 
 import {
@@ -23,8 +24,12 @@ import { FaNotesMedical } from "react-icons/fa6";
 import { CgNotes } from "react-icons/cg";
 import { FaBookBookmark } from "react-icons/fa6";
 import { GiBullseye } from "react-icons/gi";
-
 import NotesAddButton from "@/components/add-buttons/notes-add-button";
+import NotesPreviewButton from "@/components/preview-buttons/notes-preview-button";
+import DeleteNoteButton from "../../../components/delete-buttons/delete-note-button";
+import JournalAddButton from "@/components/add-buttons/journal-add-buttonn";
+import JournalPreviewButton from "@/components/preview-buttons/journal-preview-button";
+import DeleteJournalButton from "@/components/delete-buttons/delete-journal-button";
 
 type Note = {
   id: string;
@@ -67,7 +72,12 @@ type Goal = {
 };
 
 export default async function DashboardPage() {
-  const [notes, quickNotes, journals, goals]: [Note[], QuickNote[], Journal[], Goal[]] = await Promise.all([
+  const [notes, quickNotes, journals, goals]: [
+    Note[],
+    QuickNote[],
+    Journal[],
+    Goal[]
+  ] = await Promise.all([
     GetNotes(),
     GetQuickNotes(),
     GetJournals(),
@@ -79,18 +89,28 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex flex-col items-center justify-center gap-4 p-4">
-      <h1 className="text-2xl w-full flex items-center justify-start gap-2"> <CgNotes />  My Notes</h1> <br />
+      <h1 className="text-2xl w-full flex items-center justify-start gap-2">
+        {" "}
+        <CgNotes /> My Notes
+      </h1>{" "}
+      <br />
       <br />
       <Carousel className="w-3/4 sm:w-6/7 md:w-9/10">
         <CarouselContent>
           {notes.map((note) => (
             <CarouselItem className="sm:basis-1/2 lg:basis-1/3" key={note.id}>
-              <Card>
+              <Card className="group">
                 <CardHeader>
-                  <CardTitle className="text-xl overflow-hidden max-h-8">{note.title}</CardTitle>
+                  <CardTitle className="text-xl overflow-hidden max-h-8">
+                    {note.title}
+                  </CardTitle>
                   <CardDescription className="text-xs max-h-5 overflow-hidden">
                     {note.description || "No description"}
                   </CardDescription>
+                  <CardAction className="flex gap-2 absolute bottom-4 right-4 opacity-100 sm:top-0 sm:right-0 sm:relative sm: sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200">
+                    <NotesPreviewButton id={note.id} />
+                    <DeleteNoteButton id={note.id} />
+                  </CardAction>
                 </CardHeader>
                 <CardContent className="text-sm h-15 overflow-hidden">
                   <p>{note.content}</p>
@@ -98,24 +118,29 @@ export default async function DashboardPage() {
                 <CardFooter className="text-xs text-muted-foreground">
                   <p>
                     Created on {note.createdAt.getDate()}-
-                    {note.createdAt.getMonth() + 1}-{note.createdAt.getFullYear()}
+                    {note.createdAt.getMonth() + 1}-
+                    {note.createdAt.getFullYear()}
                   </p>
                 </CardFooter>
               </Card>
             </CarouselItem>
           ))}
-          <CarouselItem className="sm:basis-1/2 lg:basis-1/3">     
-               <div className="flex items-center justify-center h-full cursor-pointer rounded-xl hover:bg-[var(--crad)]">
-                <NotesAddButton />
-               </div>
-          </CarouselItem >
+          <CarouselItem className="sm:basis-1/2 lg:basis-1/3">
+            <div className="flex items-center justify-center h-full cursor-pointer rounded-xl hover:bg-[var(--crad)]">
+              <NotesAddButton />
+            </div>
+          </CarouselItem>
         </CarouselContent>
         <CarouselPrevious />
         <CarouselNext />
       </Carousel>
       <br />
       <br />
-      <h1 className="text-2xl w-full flex items-center justify-start gap-2"> <FaBookBookmark />  Journals </h1> <br />
+      <h1 className="text-2xl w-full flex items-center justify-start gap-2">
+        {" "}
+        <FaBookBookmark /> Journals{" "}
+      </h1>{" "}
+      <br />
       <br />
       <Carousel className="w-3/4 sm:w-6/7 md:w-9/10">
         <CarouselContent>
@@ -124,9 +149,15 @@ export default async function DashboardPage() {
               className="sm:basis-1/2 lg:basis-1/3"
               key={journal.id}
             >
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-xl overflow-hidden max-h-6">{journal.title || "Untitled"}</CardTitle>
+              <Card className="group">
+                <CardHeader className="max-h-5">
+                  <CardTitle className="text-xl overflow-hidden max-h-8">
+                    {journal.title || "Untitled"}
+                  </CardTitle>
+                  <CardAction className="flex gap-2 absolute bottom-4 right-4 opacity-100 sm:top-0 sm:right-0 sm:relative sm: sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200">
+                    <JournalPreviewButton id={journal.id} />
+                    <DeleteJournalButton id={journal.id} />
+                  </CardAction>
                 </CardHeader>
                 <CardContent className="text-sm h-15 overflow-hidden">
                   <p>{journal.content}</p>
@@ -141,13 +172,22 @@ export default async function DashboardPage() {
               </Card>
             </CarouselItem>
           ))}
+          <CarouselItem className="sm:basis-1/2 lg:basis-1/3">
+            <div className="flex items-center justify-center h-full cursor-pointer rounded-xl hover:bg-[var(--crad)]">
+              <JournalAddButton />
+            </div>
+          </CarouselItem>
         </CarouselContent>
         <CarouselPrevious />
         <CarouselNext />
       </Carousel>
       <br />
       <br />
-      <h1 className="text-2xl w-full flex items-center justify-start gap-2"> <FaNotesMedical /> Quick Notes</h1> <br />
+      <h1 className="text-2xl w-full flex items-center justify-start gap-2">
+        {" "}
+        <FaNotesMedical /> Quick Notes
+      </h1>{" "}
+      <br />
       <br />
       <Carousel className="w-3/4 sm:w-6/7 md:w-9/10">
         <CarouselContent>
@@ -176,7 +216,11 @@ export default async function DashboardPage() {
       </Carousel>
       <br />
       <br />
-      <h1 className="text-2xl w-full flex items-center justify-start gap-2"> <GiBullseye /> Goals </h1> <br />
+      <h1 className="text-2xl w-full flex items-center justify-start gap-2">
+        {" "}
+        <GiBullseye /> Goals{" "}
+      </h1>{" "}
+      <br />
       <br />
       <Carousel className="w-3/4 sm:w-6/7 md:w-9/10">
         <CarouselContent>

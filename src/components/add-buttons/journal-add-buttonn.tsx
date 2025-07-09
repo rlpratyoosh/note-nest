@@ -17,17 +17,15 @@ import {
   Components,
   ReactMarkdownProps,
 } from "react-markdown/lib/ast-to-react";
-import { createNote } from "@/actions";
-import { DialogDescription } from "@radix-ui/react-dialog";
+import { createJournal } from "@/actions";
 import { IoMdSave } from "react-icons/io";
 import { CiSaveUp2 } from "react-icons/ci";
 
-export default function NotesAddButton() {
+export default function JournalAddButton() {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [content, setContent] = useState<string>("");
   const [title, setTitle] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
 
   const components: Components = {
@@ -114,10 +112,9 @@ export default function NotesAddButton() {
     try {
       setLoading(true);
       setError(null);
-      await createNote(title, content, description);
+      await createJournal(title, content);
       setTitle("");
       setContent("");
-      setDescription("");
       setOpen(false);
     } catch (error) {
       setError(error as string);
@@ -150,14 +147,6 @@ export default function NotesAddButton() {
               {loading ? <CiSaveUp2 /> : <IoMdSave />}
             </Button>
           </DialogTitle>
-          <DialogDescription>
-            <Input
-              placeholder="Write your description here..."
-              className="max-w-100 text-xs"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />{" "}
-          </DialogDescription>
           <div className="flex items-center ml-2">
             {error && <div className="text-red-500 text-sm mb-2">{error}</div>}{" "}
           </div>
