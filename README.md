@@ -33,7 +33,7 @@ Minimalist, fully dark-themed UI for focused writing sessions.
 
 ## 🛠️ Tech Stack
 
-- **Next.js 14 (App Router)**
+- **Next.js 15 (App Router)**
 - **TypeScript**
 - **Tailwind CSS**
 - **Clerk Authentication**
